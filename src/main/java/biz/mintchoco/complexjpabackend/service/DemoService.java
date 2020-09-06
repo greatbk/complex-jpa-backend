@@ -22,35 +22,24 @@ public class DemoService {
     }
 
     public Master saveMaster(Master master) {
-        return masterRepository.save(master);
-    }
-
-    public Master findMaster(Master master) {
-        return findMaster(master.getId());
-    }
-
-    public Master findMaster(Long id) {
-        return masterRepository.findById(id).orElse(null);
-    }
-
-    public Subtype findSubtype(Subtype subtype) {
-        return findSubtype(subtype.getId());
-    }
-
-    public Subtype findSubtype(Long id) {
-        return subtypeRepository.findById(id).orElse(null);
+        masterRepository.save(master);
+        return masterRepository.findById(master.getId()).orElse(null);
     }
 
     public Subtype saveSubtype(Subtype subtype) {
-        if (subtype != null) {
-            if (subtype.getMaster() != null) {
-                masterRepository.save(subtype.getMaster());
-            }
-            subtypeRepository.save(subtype);
-
-            return subtypeRepository.findById(subtype.getId()).orElse(null);
+        if (subtype.getMaster() != null) {
+            masterRepository.save(subtype.getMaster());
         }
-        return subtype;
+        subtypeRepository.save(subtype);
+        return subtypeRepository.findById(subtype.getId()).orElse(null);
+    }
+
+    public Master saveSubtypeReturnMaster(Subtype subtype) {
+        if (subtype.getMaster() != null) {
+            masterRepository.save(subtype.getMaster());
+        }
+        subtypeRepository.save(subtype);
+        return masterRepository.findById(subtype.getMaster().getId()).orElse(null);
     }
 
     public void clear() {

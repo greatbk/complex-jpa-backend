@@ -3,7 +3,7 @@ package biz.mintchoco.complexjpabackend.entity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.io.Serializable;
+import java.util.Map;
 
 @Entity
 @AllArgsConstructor
@@ -18,8 +18,8 @@ public @Builder @Getter @Setter class Subtype {
     private Master master;
 
     /*
-    @Column
-    private Map<String, Metadata> metadata;
+    @OneToMany(cascade = CascadeType.ALL)
+    private Map<String, Metadata> meta;
      */
 
     @Column
@@ -48,6 +48,7 @@ public @Builder @Getter @Setter class Subtype {
         @Column
         private String attrValues;
 
+        /*
         @Embeddable
         @AllArgsConstructor
         @NoArgsConstructor
@@ -59,5 +60,6 @@ public @Builder @Getter @Setter class Subtype {
             @Column
             private Long parentId;
         }
+         */
     }
 }
