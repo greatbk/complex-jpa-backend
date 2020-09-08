@@ -1,10 +1,12 @@
 package biz.mintchoco.complexjpabackend.entity;
 
+import biz.mintchoco.complexjpabackend.entity.base.AbstractEntity;
 import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
+@Table(schema= AbstractEntity.SCHEMA, name="master")
 @AllArgsConstructor
 @NoArgsConstructor
 public @Builder @Getter @Setter class Master {

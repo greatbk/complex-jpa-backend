@@ -25,7 +25,7 @@ public class DemoTest {
 
     @BeforeEach
     public void init() {
-        demoService.clear();
+        demoService.init();
     }
 
     @DisplayName("Master 데이터 생성 및 조회 테스트")
@@ -96,7 +96,7 @@ public class DemoTest {
     private Subtype createSubtype(final Master master) {
         return Subtype.builder()
                 .master(master)
-                .insertedDatetime(System.currentTimeMillis())
+                .insertedDateTime(System.currentTimeMillis())
                 .insertedUser("byung")
                 .updatedDatetime(System.currentTimeMillis())
                 .updatedUser("byung")

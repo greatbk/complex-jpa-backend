@@ -27,7 +27,7 @@ CREATE TABLE metadata (
   attr_name VARCHAR(40) NOT NULL,
   parent_id LONG NOT NULL,
   attr_type VARCHAR(40) NOT NULL,
-  attr_values VARCHAR(250) NOT NULL,
+  attr_value VARCHAR(250) NOT NULL,
   PRIMARY KEY(attr_name, parent_id),
   FOREIGN KEY(parent_id) REFERENCES subtype(id)
 );

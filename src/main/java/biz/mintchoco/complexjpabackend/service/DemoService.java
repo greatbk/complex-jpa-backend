@@ -27,22 +27,18 @@ public class DemoService {
     }
 
     public Subtype saveSubtype(Subtype subtype) {
-        if (subtype.getMaster() != null) {
-            masterRepository.save(subtype.getMaster());
-        }
+        masterRepository.save(subtype.getMaster());
         subtypeRepository.save(subtype);
         return subtypeRepository.findById(subtype.getId()).orElse(null);
     }
 
     public Master saveSubtypeReturnMaster(Subtype subtype) {
-        if (subtype.getMaster() != null) {
-            masterRepository.save(subtype.getMaster());
-        }
+        masterRepository.save(subtype.getMaster());
         subtypeRepository.save(subtype);
         return masterRepository.findById(subtype.getMaster().getId()).orElse(null);
     }
 
-    public void clear() {
+    public void init() {
         subtypeRepository.deleteAll();
         masterRepository.deleteAll();
     }

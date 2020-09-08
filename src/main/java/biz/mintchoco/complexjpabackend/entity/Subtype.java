@@ -1,65 +1,65 @@
 package biz.mintchoco.complexjpabackend.entity;
 
+import biz.mintchoco.complexjpabackend.entity.base.AbstractEntity;
+import biz.mintchoco.complexjpabackend.entity.base.AbstractMetadata;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
-public @Builder @Getter @Setter class Subtype {
+@Table(schema=AbstractEntity.SCHEMA, name="subtype")
+public class Subtype extends AbstractEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private @Getter @Setter Long id;
 
     @OneToOne(fetch=FetchType.LAZY)
-    private Master master;
+    private @Getter @Setter Master master;
 
-    /*
-    @OneToMany(cascade = CascadeType.ALL)
-    private Map<String, Metadata> meta;
-     */
+    @OneToMany(mappedBy = "id.parent", fetch=FetchType.EAGER, cascade=CascadeType.ALL, orphanRemoval=true)
+    @MapKey(name="id.attrName")
+    private @Getter @Setter Map<String, Metadata> meta = new HashMap<>();
 
-    @Column
-    private long insertedDatetime;
+    public Subtype() {
+        super();
+    }
 
-    @Column
-    private String insertedUser;
-
-    @Column
-    private long updatedDatetime;
-
-    @Column
-    private String updatedUser;
+    @Builder
+    public Subtype(Long insertedDateTime, String insertedUser, Long updatedDatetime, String updatedUser, Master master, Map<String, Object> metadata) {
+        super(insertedDateTime, insertedUser, updatedDatetime, updatedUser);
+        this.master = master;
+        //this.metadata = metadata;
+    }
 
     @Entity
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static @Builder @Getter @Setter class Metadata {
+    @Table(schema=AbstractEntity.SCHEMA, name="metadata")
+    public static @Getter @Setter class Metadata extends AbstractMetadata {
 
         @EmbeddedId
-        private MetadataPk metadataPK;
+        private Id id;
 
-        @Column
-        private String attrType;
-
-        @Column
-        private String attrValues;
-
-        /*
-        @Embeddable
-        @AllArgsConstructor
-        @NoArgsConstructor
-        public static @Builder @Getter @Setter class MetadataPk implements Serializable {
-
-            @Column
-            private String attrName;
-
-            @Column
-            private Long parentId;
+        public Metadata() {
+            setId(new Id());
         }
-         */
+
+        public Metadata(Subtype parent, String key, Object value) {
+            this();
+            id.setParent(parent);
+            id.setAttrName(key);
+            setAttrValueObject(value);
+        }
+
+        @Embeddable
+        public static @Getter @Setter class Id implements Serializable {
+
+            @ManyToOne(fetch=FetchType.LAZY)
+            private Subtype parent;
+
+            private String attrName;
+        }
     }
 }
