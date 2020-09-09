@@ -26,6 +26,14 @@ public class DemoService {
         return masterRepository.findById(master.getId()).orElse(null);
     }
 
+    public Master findMaster(final long masterId) {
+        return masterRepository.findById(masterId).orElse(null);
+    }
+
+    public void deleteMaster(final Master master) {
+        masterRepository.delete(master);
+    }
+
     public Subtype saveSubtype(Subtype subtype) {
         masterRepository.save(subtype.getMaster());
         subtypeRepository.save(subtype);
@@ -36,6 +44,10 @@ public class DemoService {
         masterRepository.save(subtype.getMaster());
         subtypeRepository.save(subtype);
         return masterRepository.findById(subtype.getMaster().getId()).orElse(null);
+    }
+
+    public void deleteSubtype(final Subtype subtype) {
+        subtypeRepository.delete(subtype);
     }
 
     public void init() {

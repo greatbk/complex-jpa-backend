@@ -22,7 +22,7 @@ public class Subtype extends AbstractEntity {
 
     @OneToMany(mappedBy = "id.parent", fetch=FetchType.EAGER, cascade=CascadeType.ALL, orphanRemoval=true)
     @MapKey(name="id.attrName")
-    private @Getter @Setter Map<String, Metadata> meta = new HashMap<>();
+    private Map<String, Metadata> meta = new HashMap<>();
 
     public Subtype() {
         super();
@@ -32,7 +32,28 @@ public class Subtype extends AbstractEntity {
     public Subtype(Long insertedDateTime, String insertedUser, Long updatedDatetime, String updatedUser, Master master, Map<String, Object> metadata) {
         super(insertedDateTime, insertedUser, updatedDatetime, updatedUser);
         this.master = master;
-        //this.metadata = metadata;
+        setMetadata(metadata);
+    }
+
+    public void setMetadata(Map<String, Object> metadata) {
+        if (metadata != null) {
+            meta.clear();
+            for (Map.Entry<String, Object> m : metadata.entrySet()) {
+                meta.put(m.getKey(), new Metadata(this, m.getKey(), m.getValue()));
+            }
+        }
+    }
+
+    public Map<String, Object> getMetadata() {
+        final Map<String, Object> map = new HashMap<>();
+        for(Metadata m : meta.values()) {
+            map.put(m.getId().getAttrName(), m.getAttrValueObject());
+        }
+        return map;
+    }
+
+    public void clearMetadata() {
+        meta.clear();
     }
 
     @Entity
