@@ -10,11 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -137,6 +139,136 @@ public class DemoTest {
                 .isNotNull()
                 .usingRecursiveComparison()
                 .isEqualTo(dataSubtype); */
+    }
+
+    @DisplayName("Metadata 수정 테스트")
+    @Test
+    public void demo_test_06() {
+        final Master dataMaster = createMaster();
+        final Map<String, Object> dataMetadata = createMetadta();
+        final Subtype dataSubtype = createSubtype(dataMaster, dataMetadata);
+
+        //dataSubtype 의 id 항목에 값이 생성된다.
+        demoService.saveSubtype(dataSubtype);
+
+        final Map<String, Object> metadata = dataSubtype.getMetadata();
+        metadata.put("email", "bk@test.zzz");
+        dataSubtype.setMetadata(metadata);
+
+        //subtype update
+        final Subtype persistSubtype = demoService.saveSubtype(dataSubtype);
+
+        assertThat(persistSubtype, is(notNullValue()));
+        assertThat(persistSubtype.getMetadata(), is(notNullValue()));
+        assertThat(persistSubtype.getMetadata().keySet().size(), greaterThan(0));
+        assertThat(persistSubtype.getMetadata().get("email"), is("bk@test.zzz"));
+    }
+
+    @DisplayName("Subtype 수정 테스트")
+    @Test
+    public void demo_test_07() {
+        final Master dataMaster = createMaster();
+        final Subtype dataSubtype = createSubtype(dataMaster, null);
+
+        //dataSubtype 의 id 항목에 값이 생성된다.
+        demoService.saveSubtype(dataSubtype);
+
+        final long updateTime = System.currentTimeMillis();
+        dataSubtype.setUpdatedDatetime(updateTime);
+        dataSubtype.setUpdatedUser("updater");
+
+        //subtype update
+        final Subtype persistSubtype = demoService.saveSubtype(dataSubtype);
+
+        assertThat(persistSubtype, is(notNullValue()));
+        assertThat(persistSubtype.getId(), is(notNullValue()));
+        assertThat(persistSubtype.getUpdatedDatetime(), is(updateTime));
+        assertThat(persistSubtype.getUpdatedUser(), is("updater"));
+
+        Assertions.assertThat(persistSubtype)
+                .isNotNull()
+                .usingRecursiveComparison()
+                .isEqualTo(dataSubtype);
+    }
+
+    @DisplayName("Master 수정 테스트")
+    @Test
+    public void demo_test_08() {
+        final Master dataMaster = createMaster();
+        final Subtype dataSubtype = createSubtype(dataMaster, null);
+
+        //dataSubtype 의 id 항목에 값이 생성된다.
+        demoService.saveSubtype(dataSubtype);
+
+        final String content1 = "다이아몬드 손톱깎이 제조방법";
+        final String content2 = "차세대 때밀이 개발";
+        dataSubtype.getMaster().setContent1(content1);
+        dataSubtype.getMaster().setContent2(content2);
+
+        //subtype update
+        final Subtype persistSubtype = demoService.saveSubtype(dataSubtype);
+
+        assertThat(persistSubtype, is(notNullValue()));
+        assertThat(persistSubtype.getId(), is(notNullValue()));
+        assertThat(persistSubtype.getMaster().getContent1(), is(content1));
+        assertThat(persistSubtype.getMaster().getContent2(), is(content2));
+
+        Assertions.assertThat(persistSubtype)
+                .isNotNull()
+                .usingRecursiveComparison()
+                .isEqualTo(dataSubtype);
+    }
+
+    @DisplayName("Subtype 삭제 테스트")
+    @Test
+    public void demo_test_09() {
+        final Master dataMaster = createMaster();
+        final Map<String, Object> dataMetadata = createMetadta();
+        final Subtype dataSubtype = createSubtype(dataMaster, dataMetadata);
+
+        //dataSubtype 의 id 항목에 값이 생성된다.
+        demoService.saveSubtype(dataSubtype);
+
+        //subtype, metadata 모두 삭제
+        demoService.deleteSubtype(dataSubtype);
+
+        final Master persistMaster = demoService.findMaster(dataMaster.getId());
+
+        assertThat(persistMaster, is(notNullValue()));
+        assertThat(persistMaster.getSubtype(), is(nullValue()));
+    }
+
+    @DisplayName("Master 삭제 테스트(Subtype 데이터로 인해 의존성오류가 발생하는 경우)")
+    @Test
+    public void demo_test_10() {
+        final Master dataMaster = createMaster();
+        final Map<String, Object> dataMetadata = createMetadta();
+        final Subtype dataSubtype = createSubtype(dataMaster, dataMetadata);
+
+        //dataSubtype 의 id 항목에 값이 생성된다.
+        demoService.saveSubtype(dataSubtype);
+
+        //subtype 데이터에 의존성이 걸려 있기 때문에 오류가 발생한다.
+        assertThatThrownBy(() -> demoService.deleteMaster(dataMaster))
+                .isInstanceOf(DataIntegrityViolationException.class)
+                .hasMessageContaining("PUBLIC.SUBTYPE FOREIGN KEY(MASTER_ID) REFERENCES PUBLIC.MASTER(ID)");
+    }
+
+    @DisplayName("Master 삭제 테스트")
+    @Test
+    public void demo_test_11() {
+        final Master dataMaster = createMaster();
+
+        //dataSubtype 의 id 항목에 값이 생성된다.
+        demoService.saveMaster(dataMaster);
+        final long id = dataMaster.getId();
+
+        //master 데이터 삭제
+        demoService.deleteMaster(dataMaster);
+
+        final Master persistMaster = demoService.findMaster(id);
+
+        assertThat(persistMaster, is(nullValue()));
     }
 
     private Master createMaster() {
