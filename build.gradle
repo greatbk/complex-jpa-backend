@@ -21,7 +21,7 @@ configurations {
 repositories {
     maven {
         credentials {
-            username "byung"
+            username "gangil"
             password "abcd4321"
         }
         url "${nexusUrl}/repository/maven-public/"
